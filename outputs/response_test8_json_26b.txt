@@ -1,0 +1,156 @@
+Extract information from a patient record into a strictly valid JSON object following a specific schema.
+
+    *   Name: James R. Calloway
+    *   DOB: 14 March 1978 -> 1978-03-14
+    *   Gender: male
+    *   ID: PAT-00291
+    *   Email: j.calloway@email.com
+    *   Phone: 555-0182
+    *   Address: 44 Birchwood Drive, Austin, TX 78701
+        *   Street: 44 Birchwood Drive
+        *   City: Austin
+        *   State: TX
+        *   Zip: 78701
+    *   Insurance:
+        *   Provider: BlueCross BlueShield
+        *   Policy Number: BXL-992-44A
+        *   Group Number: GRP-0044
+        *   Copay: $30 -> 30
+    *   Visit 1:
+        *   Visit ID: VIS-001
+        *   Date: 2026-01-15
+        *   Physician: Dr. Sarah Nguyen
+        *   Diagnosis: Type 2 Diabetes Mellitus
+        *   ICD-10: E11.9
+        *   Prescription:
+            *   Drug: Metformin
+            *   Dosage: 500mg
+            *   Frequency: twice daily
+            *   Refills: 3
+    *   Visit 2:
+        *   Visit ID: VIS-002
+        *   Date: 2026-03-02
+        *   Physician: Dr. James Park
+        *   Diagnosis: Hypertension
+        *   ICD-10: I10
+        *   Prescription:
+            *   Drug: Lisinopril
+            *   Dosage: 10mg
+            *   Frequency: once daily
+            *   Refills: 2
+
+    *   `patient.id`: "PAT-00291"
+    *   `patient.personal.first_name`: "James" (Note: "James R." might be the first name, but usually "James" is first and "R." is middle. The schema asks for first and last. I will put "James" in first and "Calloway" in last. Wait, looking at the record "James R. Calloway", usually "James" is first, "R." is middle, "Calloway" is last. Since there is no middle name field, I'll stick to James and Calloway or include R in the first name. Let's use "James" and "Calloway" or "James R." and "Calloway". Given common extraction practices, "James" for first name and "Calloway" for last name is cleanest).
+    *   `patient.personal.last_name`: "Calloway"
+    *   `patient.personal.dob`: "1978-03-14"
+    *   `patient.personal.gender`: "male"
+    *   `patient.contact.email`: "j.calloway@email.com"
+    *   `patient.contact.phone`: "555-0182"
+    *   `patient.contact.address.street`: "44 Birchwood Drive"
+    *   `patient.contact.address.city`: "Austin"
+    *   `patient.contact.address.state`: "TX"
+    *   `patient.contact.address.zip`: "78701"
+    *   `patient.insurance.provider`: "BlueCross BlueShield"
+    *   `patient.insurance.policy_number`: "BXL-992-44A"
+    *   `patient.insurance.group_number`: "GRP-0044"
+    *   `patient.insurance.copay_usd`: 30
+    *   `patient.visits[0]`:
+        *   `visit_id`: "VIS-001"
+        *   `date`: "2026-01-15"
+        *   `physician`: "Dr. Sarah Nguyen"
+        *   `diagnosis`: "Type 2 Diabetes Mellitus"
+        *   `icd10_code`: "E11.9"
+        *   `prescriptions[0]`:
+            *   `drug`: "Metformin"
+            *   `dosage`: "500mg"
+            *   `frequency`: "twice daily"
+            *   `refills`: 3
+    *   `patient.visits[1]`:
+        *   `visit_id`: "VIS-002"
+        *   `date`: "2026-03-02"
+        *   `physician`: "Dr. James Park"
+        *   `diagnosis`: "Hypertension"
+        *   `icd10_code`: "I10"
+        *   `prescriptions[0]`:
+            *   `drug`: "Lisinopril"
+            *   `dosage`: "10mg"
+            *   `frequency`: "once daily"
+            *   `refills`: 2
+
+    *   Strictly valid JSON? Yes.
+    *   Matches schema exactly? Yes.
+    *   No added/removed fields? Checked.
+    *   Date formats correct (YYYY-MM-DD)? Yes.
+    *   Numbers are numbers (not strings)? Yes (copay, refills).
+
+    *Refinement on names:* "James R. Calloway".
+    First: James
+    Last: Calloway
+    (Middle name isn't in schema, so it's omitted or included in first. Usually, it's better to keep it simple unless specified).
+
+    *Refinement on ICD-10:*
+    Visit 1: E11.9
+    Visit 2: I10
+
+    *Refinement on Visit IDs:*
+    The text says: "Visit ID for first visit: VIS-001, second: VIS-002."
+    Matches assignment.
+{
+  "patient": {
+    "id": "PAT-00291",
+    "personal": {
+      "first_name": "James",
+      "last_name": "Calloway",
+      "dob": "1978-03-14",
+      "gender": "male"
+    },
+    "contact": {
+      "email": "j.calloway@email.com",
+      "phone": "555-0182",
+      "address": {
+        "street": "44 Birchwood Drive",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78701"
+      }
+    },
+    "insurance": {
+      "provider": "BlueCross BlueShield",
+      "policy_number": "BXL-992-44A",
+      "group_number": "GRP-0044",
+      "copay_usd": 30
+    },
+    "visits": [
+      {
+        "visit_id": "VIS-001",
+        "date": "2026-01-15",
+        "physician": "Dr. Sarah Nguyen",
+        "diagnosis": "Type 2 Diabetes Mellitus",
+        "icd10_code": "E11.9",
+        "prescriptions": [
+          {
+            "drug": "Metformin",
+            "dosage": "500mg",
+            "frequency": "twice daily",
+            "refills": 3
+          }
+        ]
+      },
+      {
+        "visit_id": "VIS-002",
+        "date": "2026-03-02",
+        "physician": "Dr. James Park",
+        "diagnosis": "Hypertension",
+        "icd10_code": "I10",
+        "prescriptions": [
+          {
+            "drug": "Lisinopril",
+            "dosage": "10mg",
+            "frequency": "once daily",
+            "refills": 2
+          }
+        ]
+      }
+    ]
+  }
+}

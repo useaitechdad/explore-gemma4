@@ -1,0 +1,438 @@
+Build a full-stack to-do application.
+FastAPI (Python) + React (TypeScript).
+
+        *   Backend: `main.py` (endpoints), `models.py` (SQLAlchemy), `schemas.py` (Pydantic).
+        *   Frontend: `api.ts` (typed client), `TaskList.tsx` (UI), `LoginForm.tsx` (UI).
+        *   Endpoints: `/auth/login`, `/tasks` (GET/POST), `/tasks/{id}` (PUT/DELETE).
+        *   Constraint: TypeScript types must exactly match Pydantic schemas.
+
+    *   *Database:* SQLite (simplest for a demo).
+    *   *Auth:* For simplicity, I'll use a basic Bearer token (JWT) simulation or a simple token header, as implementing full OAuth2/JWT usually requires several extra files/configs. I'll use a simple "fake token" approach but structured correctly so it's easy to upgrade to JWT.
+    *   *CORS:* Essential for React to talk to FastAPI.
+
+    *   *models.py:*
+        *   `User`: id, username, hashed_password.
+        *   `Task`: id, title, description, completed, user_id (FK).
+
+    *   *schemas.py:*
+        *   `UserLogin`: username, password.
+        *   `Token`: access_token, token_type.
+        *   `TaskCreate`: title, description.
+        *   `TaskUpdate`: title, description, completed (all optional).
+        *   `Task`: id, title, description, completed (base).
+
+    *   *main.py:*
+        *   Setup SQLAlchemy engine/session.
+        *   Implement `/auth/login`: Verify user, return token.
+        *   Implement `/tasks` (GET): Get tasks for the authenticated user.
+        *   Implement `/tasks` (POST): Create task for the authenticated user.
+        *   Implement `/tasks/{id}` (PUT): Update task.
+        *   Implement `/tasks/{id}` (DELETE): Delete task.
+        *   *Auth Middleware:* A simple dependency `get_current_user` to check the token.
+
+    *   *api.ts:*
+        *   Define interfaces: `UserLogin`, `Token`, `Task`, `TaskCreate`, `TaskUpdate`.
+        *   Functions using `fetch` or `axios` (I'll use `fetch` for zero dependencies).
+        *   Manage a local `token` in localStorage.
+
+    *   *LoginForm.tsx:*
+        *   State for username/password.
+        *   Call `login` from `api.ts`.
+        *   Save token, redirect or change state.
+
+    *   *TaskList.tsx:*
+        *   `useEffect` to fetch tasks.
+        *   Render list.
+        *   Handle "Toggle Complete" (PUT).
+        *   Handle "Delete" (DELETE).
+        *   Handle "Add Task" (POST).
+
+    *   *Backend:* Ensure `TaskUpdate` allows partial updates. Use `response_model` in FastAPI.
+    *   *Frontend:* Ensure `Task` interface matches the `Task` schema exactly.
+    *   *Connectivity:* Add CORS middleware to `main.py`.This is a complete implementation of a full-stack To-Do application.
+
+### Project Structure
+backend/
+  ├── main.py
+  ├── models.py
+  └── schemas.py
+frontend/
+  ├── src/
+  │   ├── api.ts
+  │   ├── LoginForm.tsx
+  │   └── TaskList.tsx
+  └── App.tsx
+
+
+---
+
+## 🐍 Backend (FastAPI)
+
+### 1. `models.py`
+Using SQLAlchemy for the database layer.
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship, declarative_base
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    tasks = relationship("Task", back_populates="owner")
+
+class Task(Base):
+    __tablename__ = "tasks"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    description = Column(String, nullable=True)
+    completed = Column(Boolean, default=False)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner = relationship("User", back_populates="tasks")
+
+
+### 2. `schemas.py`
+Pydantic models defining the API data shapes.
+
+from pydantic import BaseModel
+from typing import Optional
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TaskBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+class TaskCreate(TaskBase):
+    pass
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    completed: Optional[bool] = None
+
+class Task(TaskBase):
+    id: int
+    completed: bool
+
+    class Config:
+        from_attributes = True
+
+
+### 3. `main.py`
+The application logic and endpoints. (Note: Using a simple token system for demonstration purposes).
+
+from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from typing import List
+
+import models, schemas
+
+# DB Setup
+SQLALCHEMY_DATABASE_URL = "sqlite:///./todo.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+# CORS for React
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Simple Auth Helper
+def get_current_user(authorization: str = Header(None), db: Session = Depends(get_db)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    token = authorization.split(" ")[1]
+    user = db.query(models.User).filter(models.User.username == token).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user
+
+@app.post("/auth/login", response_model=schemas.Token)
+def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == payload.username).first()
+    if not user or payload.password != user.hashed_password: # In production, use bcrypt
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    return {"access_token": user.username, "token_type": "bearer"}
+
+@app.post("/tasks", response_model=schemas.Task)
+def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    db_task = models.Task(**task.model_dump(), owner_id=user.id)
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
+
+@app.get("/tasks", response_model=List[schemas.Task])
+def read_tasks(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    return db.query(models.Task).filter(models.Task.owner_id == user.id).all()
+
+@app.put("/tasks/{id}", response_model=schemas.Task)
+def update_task(id: int, task_update: schemas.TaskUpdate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    db_task = db.query(models.Task).filter(models.Task.id == id, models.Task.owner_id == user.id).first()
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    update_data = task_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_task, key, value)
+    
+    db.commit()
+    db.refresh(db_task)
+    return db_task
+
+@app.delete("/tasks/{id}")
+def delete_task(id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    db_task = db.query(models.Task).filter(models.Task.id == id, models.Task.owner_id == user.id).first()
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    db.delete(db_task)
+    db.commit()
+    return {"detail": "Deleted"}
+
+# Seed a user for testing
+@app.on_event("startup")
+def startup():
+    db = SessionLocal()
+    if not db.query(models.User).filter(models.User.username == "admin").first():
+        user = models.User(username="admin", hashed_password="password123")
+        db.add(user)
+        db.commit()
+    db.close()
+
+
+---
+
+## ⚛️ Frontend (React + TypeScript)
+
+### 1. `api.ts`
+Exactly matching the Pydantic schemas.
+
+const API_URL = "http://localhost:8000";
+
+// Types matching Pydantic schemas
+export interface UserLogin {
+    username: string;
+    password: string;
+}
+
+export interface Token {
+    access_token: string;
+    token_type: string;
+}
+
+export interface Task {
+    id: number;
+    title: string;
+    description: string | null;
+    completed: boolean;
+}
+
+export interface TaskCreate {
+    title: string;
+    description?: string;
+}
+
+export interface TaskUpdate {
+    title?: string;
+    description?: string;
+    completed?: boolean;
+}
+
+const getHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+});
+
+export const api = {
+    async login(data: UserLogin): Promise<Token> {
+        const res = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error("Login failed");
+        return res.json();
+    },
+
+    async getTasks(): Promise<Task[]> {
+        const res = await fetch(`${API_URL}/tasks`, { headers: getHeaders() });
+        if (!res.ok) throw new Error("Failed to fetch tasks");
+        return res.json();
+    },
+
+    async createTask(task: TaskCreate): Promise<Task> {
+        const res = await fetch(`${API_URL}/tasks`, {
+            method: "POST",
+            headers: getHeaders(),
+            body: JSON.stringify(task),
+        });
+        return res.json();
+    },
+
+    async updateTask(id: number, updates: TaskUpdate): Promise<Task> {
+        const res = await fetch(`${API_URL}/tasks/${id}`, {
+            method: "PUT",
+            headers: getHeaders(),
+            body: JSON.stringify(updates),
+        });
+        return res.json();
+    },
+
+    async deleteTask(id: number): Promise<void> {
+        await fetch(`${API_URL}/tasks/${id}`, {
+            method: "DELETE",
+            headers: getHeaders(),
+        });
+    },
+};
+
+
+### 2. `LoginForm.tsx`
+
+import React, { useState } from 'react';
+import { api, UserLogin } from './api';
+
+interface Props { onLoginSuccess: () => void }
+
+export const LoginForm: React.FC<Props> = ({ onLoginSuccess }) => {
+    const [form, setForm] = useState<UserLogin>({ username: '', password: '' });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const data = await api.login(form);
+            localStorage.setItem("token", data.access_token);
+            onLoginSuccess();
+        } catch (err) {
+            alert("Invalid credentials");
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '300px' }}>
+            <input placeholder="Username" onChange={e => setForm({...form, username: e.target.value})} />
+            <input type="password" placeholder="Password" onChange={e => setForm({...form, password: e.target.value})} />
+            <button type="submit">Login</button>
+        </form>
+    );
+};
+
+
+### 3. `TaskList.tsx`
+
+import React, { useEffect, useState } from 'react';
+import { api, Task, TaskCreate } from './api';
+
+export const TaskList: React.FC = () => {
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [newTask, setNewTask] = useState("");
+
+    const loadTasks = async () => {
+        const data = await api.getTasks();
+        setTasks(data);
+    };
+
+    useEffect(() => { loadTasks(); }, []);
+
+    const addTask = async () => {
+        if (!newTask) return;
+        const task: TaskCreate = { title: newTask };
+        await api.createTask(task);
+        setNewTask("");
+        loadTasks();
+    };
+
+    const toggleTask = async (task: Task) => {
+        await api.updateTask(task.id, { completed: !task.completed });
+        loadTasks();
+    };
+
+    const removeTask = async (id: number) => {
+        await api.deleteTask(id);
+        loadTasks();
+    };
+
+    return (
+        <div>
+            <h2>My Tasks</h2>
+            <div style={{ marginBottom: '20px' }}>
+                <input value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="New task..." />
+                <button onClick={addTask}>Add</button>
+            </div>
+            <ul>
+                {tasks.map(t => (
+                    <li key={t.id} style={{ marginBottom: '5px' }}>
+                        <input type="checkbox" checked={t.completed} onChange={() => toggleTask(t)} />
+                        <span style={{ textDecoration: t.completed ? 'line-through' : 'none', margin: '0 10px' }}>
+                            {t.title}
+                        </span>
+                        <button onClick={() => removeTask(t.id)}>Delete</button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+
+### 4. `App.tsx` (Glue)
+
+import React, { useState } from 'react';
+import { LoginForm } from './LoginForm';
+import { TaskList } from './TaskList';
+
+export default function App() {
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+
+    if (!isAuthenticated) {
+        return (
+            <div style={{ padding: '20px' }}>
+                <h1>Login to To-Do</h1>
+                <LoginForm onLoginSuccess={() => setIsAuthenticated(true)} />
+            </div>
+        );
+    }
+
+    return (
+        <div style={{ padding: '20px' }}>
+            <button onClick={() => { localStorage.removeItem("token"); setIsAuthenticated(false); }}>Logout</button>
+            <TaskList />
+        </div>
+    );
+}
+
+
+### How to run:
+1. **Backend**: 
+   `pip install fastapi uvicorn sqlalchemy`
+   `uvicorn main:app --reload`
+2. **Frontend**:
+   `npx create-react-app my-app --template typescript`
+   Paste the files and run `npm start`.
+3. **Test Account**: 
+   Username: `admin` / Password: `password123` (created automatically on startup).

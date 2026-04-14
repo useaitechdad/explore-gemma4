@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemma 4 Demo App</title>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --panel-bg: #16161a;
+      --border: 1px solid rgba(255, 255, 255, 0.08);
+      --accent: #4f8ef7;
+      --text: #e8e8e8;
+      --muted: rgba(255, 255, 255, 0.4);
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-ui: 'Inter', system-ui, sans-serif;
+      --radius-panel: 12px;
+      --radius-input: 8px;
+      --accent-bar: linear-gradient(90deg, #4f8ef7, #6c8ef7);
+      --code-bg: #1e1e2e;
+      --code-text: #a6e3a1;
+      --error-text: #f38ba8;
+      --btn-hover: #4780de;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 1920px;
+      min-height: 1080px;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      gap: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .api-key-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="password"] {
+      background: var(--panel-bg);
+      border: var(--border);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: var(--radius-input);
+      font-family: var(--font-mono);
+      width: 300px;
+      outline: none;
+    }
+
+    input[type="password"]:focus {
+      border-color: var(--accent);
+    }
+
+    .main-layout {
+      display: flex;
+      gap: 20px;
+      flex: 1;
+      overflow: visible;
+    }
+
+    .sidebar {
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: var(--border);
+      border-radius: var(--radius-panel);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .mode-item, .model-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    
+    .mode-item:last-child, .model-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .metric-row span:first-child {
+      color: var(--muted);
+    }
+    .metric-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .prompt-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .prompt-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent-bar);
+      border-top-left-radius: var(--radius-panel);
+      border-top-right-radius: var(--radius-panel);
+    }
+
+    textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: var(--border);
+      border-radius: var(--radius-input);
+      color: var(--text);
+      padding: 16px;
+      font-family: var(--font-ui);
+      font-size: 15px;
+      resize: none;
+      outline: none;
+      margin-top: 8px;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .prompt-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .upload-container {
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .upload-container.active {
+      display: flex;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-input);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .thumbnail {
+      max-width: 120px;
+      max-height: 80px;
+      border-radius: 4px;
+      border: var(--border);
+      object-fit: cover;
+      display: none;
+    }
+
+    .response-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .response-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 10px;
+    }
+
+    .response-header-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .response-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .response-actions .btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .response-panel {
+      flex: 1;
+      min-height: 400px;
+      background: var(--panel-bg);
+      border: var(--border);
+      border-radius: var(--radius-panel);
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .response-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    .response-panel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .response-panel::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    .response-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .error-text {
+      color: var(--error-text);
+    }
+
+    .inline-error {
+      color: var(--error-text);
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 12px;
+      border-radius: var(--radius-input);
+      margin: 12px 0;
+      white-space: pre;
+      overflow-x: auto;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>GEMMA 4 DEMO</h1>
+      <div class="api-key-container">
+        <span style="color: var(--muted); font-size: 14px;">API Key:</span>
+        <div>
+          <input type="password" id="api-key" placeholder="AIzaSy...">
+          <div id="api-key-error" class="inline-error">Enter your API key above</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      
+      <!-- Sidebar -->
+      <div class="sidebar">
+        
+        <div class="panel">
+          <div class="panel-title">Model</div>
+          <label class="model-item">
+            <input type="radio" name="model" value="gemma-4-31b-it" checked> 31B Dense
+          </label>
+          <label class="model-item">
+            <input type="radio" name="model" value="gemma-4-26b-a4b-it"> 26B A4B
+          </label>
+          <label class="model-item">
+            <input type="radio" name="model" value="gemini-3.1-pro-preview"> Gemini 3.1 Pro
+          </label>
+          <label class="model-item">
+            <input type="radio" name="model" value="gemini-3-flash-preview"> Gemini 3.0 Flash
+          </label>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Mode</div>
+          <label class="mode-item">
+            <input type="radio" name="mode" value="text" checked> Text
+          </label>
+          <label class="mode-item">
+            <input type="radio" name="mode" value="image"> Image
+          </label>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Options</div>
+          <label class="checkbox-item">
+            <input type="checkbox" id="thinking-mode"> Thinking Mode (high)
+          </label>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Metrics</div>
+          <div class="metric-row">
+            <span>Time:</span>
+            <span id="metric-time">--ms</span>
+          </div>
+          <div class="metric-row">
+            <span>Model:</span>
+            <span id="metric-model">gemma-4-31b-it</span>
+          </div>
+          <div class="metric-row">
+            <span>Tokens:</span>
+            <span id="metric-tokens">--</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Content -->
+      <div class="content-area">
+
+        <div class="panel prompt-panel">
+          <textarea id="prompt" rows="4" placeholder="Type your prompt here... (Enter to send, Shift+Enter for newline)"></textarea>
+          
+          <div class="prompt-actions">
+            <div class="upload-container" id="upload-container">
+              <label class="btn" style="cursor: pointer;">
+                <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" style="display: none;">
+                📎 Upload Image
+              </label>
+              <img id="image-thumbnail" class="thumbnail" alt="Preview">
+            </div>
+            <div style="flex:1"></div>
+            <button id="btn-send" class="btn btn-primary">▶ Send</button>
+          </div>
+        </div>
+
+        <div class="response-wrapper">
+          <div class="response-header">
+            <div class="response-header-title">Response</div>
+            <div class="response-actions">
+              <button id="btn-copy" class="btn">Copy</button>
+              <button id="btn-clear" class="btn">Clear</button>
+            </div>
+          </div>
+          <div class="response-panel" id="response-output"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+    const elApiKey = document.getElementById('api-key');
+    const elApiKeyError = document.getElementById('api-key-error');
+    const elModelRadios = document.querySelectorAll('input[name="model"]');
+    const elModeRadios = document.querySelectorAll('input[name="mode"]');
+    const elThinkingMode = document.getElementById('thinking-mode');
+
+    const elMetricTime = document.getElementById('metric-time');
+    const elMetricModel = document.getElementById('metric-model');
+    const elMetricTokens = document.getElementById('metric-tokens');
+
+    const elPrompt = document.getElementById('prompt');
+    const elUploadContainer = document.getElementById('upload-container');
+    const elImageUpload = document.getElementById('image-upload');
+    const elThumbnail = document.getElementById('image-thumbnail');
+    const elBtnSend = document.getElementById('btn-send');
+
+    const elResponseOutput = document.getElementById('response-output');
+    const elBtnCopy = document.getElementById('btn-copy');
+    const elBtnClear = document.getElementById('btn-clear');
+
+    let currentModel = 'gemma-4-31b-it';
+    let currentMode = 'text';
+    let fileBlob = null;
+    let fileBase64 = null;
+    let fileMimeType = null;
+
+    /* ── Load API key from env.txt or localStorage ── */
+    let envApiKey = '';
+    (async function init() {
+      try {
+        const envRes = await fetch('env.txt');
+        if (envRes.ok) {
+          const envText = await envRes.text();
+          const apiMatch = envText.split('\n').find(
+            line => line.startsWith('GEMINI_API_KEY=') || line.startsWith('API_KEY=')
+          );
+          if (apiMatch) {
+            envApiKey = apiMatch.split('=')[1].trim().replace(/^["']|["']$/g, '');
+            elApiKey.value = '••••••••••••••••••••••••••••••••';
+            return;
+          }
+        }
+      } catch (e) { /* env.txt not found — that's fine */ }
+
+      const savedKey = localStorage.getItem('gemma_demo_api_key');
+      if (savedKey) elApiKey.value = savedKey;
+    })();
+
+    /* ── Event listeners ── */
+    elApiKey.addEventListener('input', () => {
+      localStorage.setItem('gemma_demo_api_key', elApiKey.value.trim());
+      elApiKeyError.style.display = 'none';
+    });
+
+    elModelRadios.forEach(radio => {
+      radio.addEventListener('change', e => {
+        currentModel = e.target.value;
+        elMetricModel.textContent = currentModel;
+      });
+    });
+
+    elModeRadios.forEach(radio => {
+      radio.addEventListener('change', e => {
+        currentMode = e.target.value;
+        elUploadContainer.classList.toggle('active', currentMode === 'image');
+      });
+    });
+
+    elImageUpload.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        fileBlob = file;
+        fileMimeType = file.type;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const dataUrl = ev.target.result;
+          elThumbnail.src = dataUrl;
+          elThumbnail.style.display = 'block';
+          // strip "data:<mime>;base64," prefix
+          fileBase64 = dataUrl.split(',')[1];
+        };
+        reader.readAsDataURL(file);
+      } else {
+        fileBlob = null;
+        fileBase64 = null;
+        fileMimeType = null;
+        elThumbnail.style.display = 'none';
+        elThumbnail.src = '';
+      }
+    });
+
+    elBtnClear.addEventListener('click', () => {
+      elPrompt.value = '';
+      elResponseOutput.innerHTML = '';
+      elMetricTime.textContent = '--ms';
+      elMetricTokens.textContent = '--';
+    });
+
+    elBtnCopy.addEventListener('click', () => {
+      navigator.clipboard.writeText(elResponseOutput.innerText).then(() => {
+        const orig = elBtnCopy.textContent;
+        elBtnCopy.textContent = 'Copied!';
+        setTimeout(() => (elBtnCopy.textContent = orig), 2000);
+      });
+    });
+
+    /* ── Helpers ── */
+    function formatText(text) {
+      const escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const blocks = escaped.split('```');
+      for (let i = 1; i < blocks.length; i += 2) {
+        let code = blocks[i];
+        const nl = code.indexOf('\n');
+        if (nl !== -1 && nl < 20) code = code.substring(nl + 1);
+        blocks[i] = '<div class="code-block">' + code + '</div>';
+      }
+      return blocks.join('');
+    }
+
+    /* ── Main send handler (direct REST API — no SDK needed) ── */
+    async function handleSend() {
+      let apiKey = elApiKey.value.trim();
+      if (apiKey === '••••••••••••••••••••••••••••••••' && envApiKey) {
+        apiKey = envApiKey;
+      }
+
+      if (!apiKey) {
+        elApiKeyError.style.display = 'block';
+        elApiKey.focus();
+        return;
+      }
+
+      const promptText = elPrompt.value.trim();
+      if (!promptText && currentMode === 'text') return;
+
+      if (currentMode === 'image' && !fileBase64) {
+        elResponseOutput.innerHTML =
+          '<span class="error-text">Please upload an image for Image mode.</span>';
+        return;
+      }
+
+      const thinkingEnabled = elThinkingMode.checked;
+
+      elBtnSend.disabled = true;
+      elBtnSend.textContent = 'Sending...';
+      elResponseOutput.innerHTML = '';
+      elMetricTime.textContent = 'In progress...';
+      elMetricTokens.textContent = '--';
+      elApiKeyError.style.display = 'none';
+
+      /* Build request body */
+      const parts = [];
+      if (currentMode === 'image' && fileBase64) {
+        parts.push({
+          inlineData: { mimeType: fileMimeType, data: fileBase64 },
+        });
+      }
+      parts.push({ text: promptText || 'Describe this image' });
+
+      const body = {
+        contents: [{ role: 'user', parts }],
+      };
+
+      if (thinkingEnabled) {
+        body.generationConfig = { thinkingConfig: { thinkingLevel: 'HIGH' } };
+      }
+
+      const url =
+        API_BASE +
+        '/' +
+        currentModel +
+        ':streamGenerateContent?alt=sse&key=' +
+        apiKey;
+
+      let fullResponseText = '';
+      const startTime = performance.now();
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const errBody = await res.text();
+          let msg = 'API error ' + res.status;
+          try {
+            const parsed = JSON.parse(errBody);
+            if (parsed.error && parsed.error.message) msg = parsed.error.message;
+          } catch (_) {
+            if (errBody.length < 300) msg = errBody;
+          }
+          throw new Error(msg);
+        }
+
+        /* Read SSE stream */
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const jsonStr = line.slice(6);
+            if (!jsonStr.trim()) continue;
+            try {
+              const chunk = JSON.parse(jsonStr);
+              if (chunk.candidates) {
+                for (const cand of chunk.candidates) {
+                  if (cand.content && cand.content.parts) {
+                    for (const part of cand.content.parts) {
+                      if (part.text) {
+                        fullResponseText += part.text;
+                      }
+                    }
+                  }
+                }
+                elResponseOutput.innerHTML = formatText(fullResponseText);
+                elResponseOutput.scrollTop = elResponseOutput.scrollHeight;
+              }
+            } catch (_) {
+              /* skip unparseable lines */
+            }
+          }
+        }
+
+        const elapsed = Math.round(performance.now() - startTime);
+        elMetricTime.textContent = elapsed + 'ms';
+        elMetricTokens.textContent = Math.round(fullResponseText.length / 4);
+
+        if (!fullResponseText) {
+          elResponseOutput.innerHTML =
+            '<span class="error-text">No response text received. The model may not have returned content.</span>';
+        }
+      } catch (err) {
+        console.error(err);
+        elResponseOutput.innerHTML =
+          '<span class="error-text">' + (err.message || 'Network error — check your connection') + '</span>';
+      } finally {
+        elBtnSend.disabled = false;
+        elBtnSend.textContent = '▶ Send';
+      }
+    }
+
+    elBtnSend.addEventListener('click', handleSend);
+
+    /* Enter to send, Shift+Enter for newline */
+    elPrompt.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    console.log('Gemma 4 Demo loaded ✓');
+  </script>
+</body>
+</html>

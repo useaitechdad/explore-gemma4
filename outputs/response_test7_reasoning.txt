@@ -1,0 +1,551 @@
+*   People: Amir, Beatrix, Carlos, Diana, Ethan (5 people)
+    *   Jobs: Doctor, Engineer, Lawyer, Teacher, Chef (5 jobs)
+    *   Pets: Cat, Dog, Fish, Bird, Rabbit (5 pets)
+    *   Floors: 1, 2, 3, 4, 5 (5 floors)
+
+    *   C1: Amir = Floor 1.
+    *   C2: Doctor = Floor 5.
+    *   C3: Beatrix ≠ Doctor.
+    *   C4: Carlos = Dog.
+    *   C5: Floor 3 = Fish.
+    *   C6: Lawyer lives directly above Teacher (Lawyer Floor = Teacher Floor + 1).
+    *   C7: Diana = Floor 4.
+    *   C8: Engineer = Cat.
+    *   C9: Ethan = Chef.
+    *   C10: Bird = Floor 2.
+
+    *   Floor 1: Amir (C1)
+    *   Floor 4: Diana (C7)
+
+    *   Floor 1: Amir
+    *   Floor 2: ?
+    *   Floor 3: ?
+    *   Floor 4: Diana
+    *   Floor 5: ?
+    *   Remaining People: Beatrix, Carlos, Ethan.
+
+    *   Floor 2: Bird (C10)
+    *   Floor 3: Fish (C5)
+    *   Floor 4: ?
+    *   Floor 5: ?
+    *   Floor 1: ?
+    *   Remaining Pets: Cat, Dog, Rabbit.
+
+    *   Floor 5: Doctor (C2)
+    *   Lawyer is directly above Teacher (C6).
+        *   Possible pairs for (Teacher, Lawyer): (1,2), (2,3), (3,4), (4,5).
+        *   Wait, Floor 5 is the Doctor. So (4,5) is impossible because the Lawyer would be on 5.
+        *   Possible pairs: (1,2), (2,3), (3,4).
+
+    *   Ethan is the Chef (C9).
+    *   Carlos owns the Dog (C4).
+
+    *   **Step 7a: Who lives on Floor 5?**
+        Floor 5 is the Doctor (C2).
+        People left for floors 2, 3, 5 are Beatrix, Carlos, Ethan.
+        C3: Beatrix is not the Doctor. So Beatrix is not on Floor 5.
+        Ethan is the Chef (C9). So Ethan is not the Doctor. Thus Ethan is not on Floor 5.
+        Therefore, Carlos must be on Floor 5.
+        *Result: Carlos = Floor 5 = Doctor.*
+
+    *   **Step 7b: Carlos's Pet.**
+        Carlos owns the Dog (C4).
+        *Result: Floor 5 = Carlos = Doctor = Dog.*
+
+    *   **Step 7c: Remaining people and floors.**
+        Remaining floors: 2, 3.
+        Remaining people: Beatrix, Ethan.
+        We know Ethan is the Chef (C9).
+        We know Floor 2 has the Bird (C10) and Floor 3 has the Fish (C5).
+
+    *   **Step 7d: Determine floors for Ethan and Beatrix.**
+        We don't have a direct constraint on which floor Ethan or Beatrix is on yet. Let's look at the jobs.
+
+    *   **Step 7e: Re-evaluating the Teacher/Lawyer pair (C6).**
+        Possible pairs (Teacher, Lawyer): (1,2), (2,3), (3,4).
+        *   If Teacher=1 and Lawyer=2:
+            *   Floor 1 (Amir) = Teacher.
+            *   Floor 2 (?) = Lawyer.
+        *   If Teacher=2 and Lawyer=3:
+            *   Floor 2 (?) = Teacher.
+            *   Floor 3 (?) = Lawyer.
+        *   If Teacher=3 and Lawyer=4:
+            *   Floor 3 (?) = Teacher.
+            *   Floor 4 (Diana) = Lawyer.
+
+    *   **Step 7f: Where does the Engineer/Cat (C8) fit?**
+        The Engineer owns the Cat.
+        *   Floor 5: Doctor, Dog.
+        *   Floor 3: Fish.
+        *   Floor 2: Bird.
+        *   Floor 4: ?
+        *   Floor 1: ?
+        The Cat must be on Floor 4 or Floor 1.
+        If Cat is on Floor 1: Amir = Engineer = Cat.
+        If Cat is on Floor 4: Diana = Engineer = Cat.
+
+    *   **Step 7g: Checking the Chef (Ethan).**
+        Ethan is the Chef.
+        Ethan must be on Floor 2 or Floor 3.
+        If Ethan is on Floor 2: Ethan = Chef = Bird.
+        If Ethan is on Floor 3: Ethan = Chef = Fish.
+
+    *   **Scenario A: Amir is the Engineer (Cat).**
+        Floor 1: Amir, Engineer, Cat.
+        Floor 5: Carlos, Doctor, Dog.
+        Floor 4: Diana, ?, ?
+        Floor 2: ?, ?, Bird.
+        Floor 3: ?, ?, Fish.
+        Job slots left: Teacher, Lawyer, Chef.
+        Chef is Ethan. Ethan is Floor 2 or 3.
+        Teacher/Lawyer pair: (2,3) or (3,4).
+        *   Sub-scenario A1: Teacher=2, Lawyer=3.
+            Floor 2 = Teacher = Bird.
+            Floor 3 = Lawyer = Fish.
+            This leaves Ethan (Chef) with no floor. (Impossible).
+        *   Sub-scenario A2: Teacher=3, Lawyer=4.
+            Floor 3 = Teacher = Fish.
+            Floor 4 = Lawyer = Diana.
+            This leaves Floor 2 for Ethan.
+            Floor 2 = Ethan = Chef = Bird.
+            Remaining person: Beatrix. Beatrix must be on Floor 3.
+            *Wait, check constraints:*
+            Amir: F1, Engineer, Cat.
+            Ethan: F2, Chef, Bird.
+            Beatrix: F3, Teacher, Fish.
+            Diana: F4, Lawyer, Rabbit (remaining pet).
+            Carlos: F5, Doctor, Dog.
+            *Everything matches!* Let's double-check Scenario B just in case.
+
+    *   **Scenario B: Diana is the Engineer (Cat).**
+        Floor 4: Diana, Engineer, Cat.
+        Floor 5: Carlos, Doctor, Dog.
+        Floor 1: Amir, ?, ?
+        Floor 2: ?, ?, Bird.
+        Floor 3: ?, ?, Fish.
+        Job slots left: Teacher, Lawyer, Chef.
+        Chef is Ethan. Ethan is Floor 2 or 3.
+        Teacher/Lawyer pair: (1,2) or (2,3).
+        *   Sub-scenario B1: Teacher=1, Lawyer=2.
+            Floor 1 = Amir = Teacher.
+            Floor 2 = Lawyer = Bird.
+            This leaves Floor 3 for Ethan.
+            Floor 3 = Ethan = Chef = Fish.
+            Remaining person: Beatrix. Beatrix must be on Floor 2.
+            *Check:* Beatrix = Lawyer = Bird.
+            Remaining pet: Rabbit. Amir must have the Rabbit.
+            *Check constraints:*
+            Amir: F1, Teacher, Rabbit.
+            Beatrix: F2, Lawyer, Bird.
+            Ethan: F3, Chef, Fish.
+            Diana: F4, Engineer, Cat.
+            Carlos: F5, Doctor, Dog.
+            *This also seems to match! Let me re-read constraints.*
+
+    *   Wait, did I miss something? Let me re-read.
+        C1: Amir F1. (Check)
+        C2: Doctor F5. (Check)
+        C3: Beatrix not Doctor. (Check: Beatrix is Lawyer)
+        C4: Carlos Dog. (Check)
+        C5: F3 Fish. (Check: Ethan F3 Fish)
+        C6: Lawyer directly above Teacher. (Check: Lawyer F2, Teacher F1)
+        C7: Diana F4. (Check)
+        C8: Engineer Cat. (Check: Diana F4 Engineer Cat)
+        C9: Ethan Chef. (Check)
+        C10: Bird F2. (Check: Beatrix F2 Bird)
+
+    *   Let's re-check Scenario A again.
+        C1: Amir F1. (Check)
+        C2: Doctor F5. (Check)
+        C3: Beatrix not Doctor. (Check: Beatrix is Teacher)
+        C4: Carlos Dog. (Check)
+        C5: F3 Fish. (Check: Beatrix F3 Fish)
+        C6: Lawyer directly above Teacher. (Check: Lawyer F4 Diana, Teacher F3 Beatrix)
+        C7: Diana F4. (Check)
+        C8: Engineer Cat. (Check: Amir F1 Engineer Cat)
+        C9: Ethan Chef. (Check: Ethan F2 Chef Bird)
+        C10: Bird F2. (Check: Ethan F2 Bird)
+
+    *   Both scenarios seem logically sound. Let me re-read the prompt to see if I missed a detail.
+        "5 people... unique job... unique pet... different floor."
+        "1. Amir floor 1."
+        "2. Doctor floor 5."
+        "3. Beatrix not Doctor."
+        "4. Carlos Dog."
+        "5. Floor 3 Fish."
+        "6. Lawyer directly above Teacher."
+        "7. Diana floor 4."
+        "8. Engineer Cat."
+        "9. Ethan Chef."
+        "10. Bird floor 2."
+
+        Wait, let me re-examine the people assigned to floors in Scenario A and B.
+
+        Scenario A:
+        F1: Amir, Engineer, Cat
+        F2: Ethan, Chef, Bird
+        F3: Beatrix, Teacher, Fish
+        F4: Diana, Lawyer, Rabbit
+        F5: Carlos, Doctor, Dog
+
+        Scenario B:
+        F1: Amir, Teacher, Rabbit
+        F2: Beatrix, Lawyer, Bird
+        F3: Ethan, Chef, Fish
+        F4: Diana, Engineer, Cat
+        F5: Carlos, Doctor, Dog
+
+        Is there any other constraint?
+        C3: Beatrix is not the Doctor. (Both OK)
+        C6: Lawyer directly above Teacher.
+        A: Lawyer(4) above Teacher(3). OK.
+        B: Lawyer(2) above Teacher(1). OK.
+
+        Let me search for any subtle hint. Usually, these riddles have one answer. Let me re-read very carefully.
+        "Amir lives on floor 1."
+        "The Doctor lives on floor 5."
+        "Beatrix is not the Doctor."
+        "Carlos owns the Dog."
+        "The person on floor 3 owns the Fish."
+        "The Lawyer lives directly above the Teacher."
+        "Diana lives on floor 4."
+        "The Engineer owns the Cat."
+        "Ethan is the Chef."
+        "The person who owns the Bird lives on floor 2."
+
+        I have checked every constraint twice. Both Scenario A and Scenario B satisfy every single constraint.
+
+        Let me re-verify Scenario A:
+        Amir: F1, Eng, Cat. (C1, C8)
+        Ethan: F2, Chef, Bird. (C9, C10)
+        Beatrix: F3, Teacher, Fish. (C5)
+        Diana: F4, Lawyer, Rabbit. (C7)
+        Carlos: F5, Doc, Dog. (C2, C4)
+        C6: Lawyer (4) above Teacher (3). (Yes)
+        C3: Beatrix not Doctor. (Yes)
+        All constraints met.
+
+        Let me re-verify Scenario B:
+        Amir: F1, Teacher, Rabbit. (C1)
+        Beatrix: F2, Lawyer, Bird. (C10)
+        Ethan: F3, Chef, Fish. (C5, C9)
+        Diana: F4, Engineer, Cat. (C7, C8)
+        Carlos: F5, Doc, Dog. (C2, C4)
+        C6: Lawyer (2) above Teacher (1). (Yes)
+        C3: Beatrix not Doctor. (Yes)
+        All constraints met.
+
+        This is unusual. Let me think if I missed any implicit constraints.
+        Unique job: Doc, Eng, Law, Tea, Chef. (A: Doc, Eng, Law, Tea, Chef / B: Doc, Eng, Law, Tea, Chef)
+        Unique pet: Cat, Dog, Fish, Bird, Rabbit. (A: Dog, Cat, Fish, Bird, Rabbit / B: Dog, Cat, Fish, Bird, Rabbit)
+        Unique floor: 1, 2, 3, 4, 5. (A: 1, 2, 3, 4, 5 / B: 1, 2, 3, 4, 5)
+
+        Could there be a mistake in my interpretation of "directly above"? No, that's standard for Floor N and Floor N+1.
+
+        Let's try to see if any other scenario exists.
+        We know Carlos = F5 = Doctor = Dog.
+        Floor 3 = Fish.
+        Floor 2 = Bird.
+        Diana = F4.
+        Amir = F1.
+        Ethan = Chef.
+        Engineer = Cat.
+
+        If Ethan is Floor 2: Ethan = Chef = Bird. (Scenario A)
+        If Ethan is Floor 3: Ethan = Chef = Fish. (Scenario B)
+
+        If Ethan is F2:
+        Floor 3 is Fish. Who is it? Beatrix?
+        If Beatrix is F3:
+        F1: Amir
+        F2: Ethan
+        F3: Beatrix
+        F4: Diana
+        F5: Carlos
+        Jobs:
+        F5: Doctor
+        F2: Chef
+        Wait, Lawyer/Teacher pair:
+        Could be F4/F3 (Diana Lawyer, Beatrix Teacher). Then F1 is Engineer (Amir). Amir = Cat.
+        Could be F3/F2 (Beatrix Lawyer, Ethan Teacher). But Ethan is Chef. Impossible.
+        Could be F2/F1 (Ethan Lawyer, Amir Teacher). But Ethan is Chef. Impossible.
+        So if Ethan is F2 and Beatrix is F3, it must be Diana=Lawyer, Beatrix=Teacher, Amir=Engineer. (This is Scenario A).
+
+        If Ethan is F3:
+        Floor 2 is Bird. Who is it? Beatrix?
+        If Beatrix is F2:
+        F1: Amir
+        F2: Beatrix
+        F3: Ethan
+        F4: Diana
+        F5: Carlos
+        Jobs:
+        F5: Doctor
+        F3: Chef
+        Wait, Lawyer/Teacher pair:
+        Could be F4/F3 (Diana Lawyer, Ethan Teacher). But Ethan is Chef. Impossible.
+        Could be F3/F2 (Ethan Lawyer, Beatrix Teacher). But Ethan is Chef. Impossible.
+        Could be F2/F1 (Beatrix Lawyer, Amir Teacher). Then F4 is Engineer (Diana). Diana = Cat.
+        So if Ethan is F3 and Beatrix is F2, it must be Beatrix=Lawyer, Amir=Teacher, Diana=Engineer. (This is Scenario B).
+
+        Wait, what if Beatrix and Ethan are flipped?
+        If Ethan is F3 and Beatrix is F2: (Done, Scenario B)
+        If Ethan is F2 and Beatrix is F3: (Done, Scenario A)
+        Is there any other combination for floors 2 and 3?
+        The only people left are Beatrix and Ethan. So they must occupy floors 2 and 3.
+
+        So, there are genuinely two solutions. However, in logic puzzles of this type, usually, if you find two, you should look for a nuance. Let me look one more time.
+        "1. Amir lives on floor 1."
+        "2. The Doctor lives on floor 5."
+        "3. Beatrix is not the Doctor."
+        "4. Carlos owns the Dog."
+        "5. The person on floor 3 owns the Fish."
+        "6. The Lawyer lives directly above the Teacher."
+        "7. Diana lives on floor 4."
+        "8. The Engineer owns the Cat."
+        "9. Ethan is the Chef."
+        "10. The person who owns the Bird lives on floor 2."
+
+        No, everything is consistent. I will provide one of the solutions, but I'll double-check the logic one last time.
+
+        Let's go with Scenario B as it's a very common pattern in these puzzles.
+        F1: Amir, Teacher, Rabbit
+        F2: Beatrix, Lawyer, Bird
+        F3: Ethan, Chef, Fish
+        F4: Diana, Engineer, Cat
+        F5: Carlos, Doctor, Dog
+
+        Wait, let's try Scenario A again too.
+        F1: Amir, Engineer, Cat
+        F2: Ethan, Chef, Bird
+        F3: Beatrix, Teacher, Fish
+        F4: Diana, Lawyer, Rabbit
+        F5: Carlos, Doctor, Dog
+
+        Actually, I'll just pick one and present the reasoning clearly. If the prompt implies a unique solution, and I found two, the most likely case is that I'm overthinking or the puzzle is slightly under-constrained. Let me check the "Lawyer directly above Teacher" again.
+        Scenario A: Diana (F4) is Lawyer, Beatrix (F3) is Teacher. (4 is directly above 3).
+        Scenario B: Beatrix (F2) is Lawyer, Amir (F1) is Teacher. (2 is directly above 1).
+
+        Is there any other constraint?
+        Beatrix is not the Doctor. (C3)
+        In A: Beatrix is Teacher.
+        In B: Beatrix is Lawyer.
+        Both satisfy.
+
+        Let me try a third check. Is there any other possibility for the Lawyer/Teacher?
+        Could the Teacher be on floor 2 and the Lawyer on floor 3?
+        If Teacher = F2, Lawyer = F3.
+        F1: Amir
+        F2: ? (Bird) - Teacher
+        F3: ? (Fish) - Lawyer
+        F4: Diana
+        F5: Carlos (Doctor, Dog)
+        Jobs left: Chef, Engineer.
+        Ethan is Chef. Ethan must be F1 or F4.
+        Engineer owns Cat. Engineer must be F1 or F4.
+        If Ethan is F1, Engineer is F4 (Diana). Diana = Cat.
+        If Ethan is F4, Engineer is F1 (Amir). Amir = Cat.
+        Remaining people: Beatrix.
+        If Ethan is F1 and Diana is Engineer, Beatrix must be F2 or F3.
+        If Beatrix is F2 (Teacher), then F3 (Lawyer) is... someone else? No, that's not right.
+        Let's list the people: Amir, Beatrix, Carlos, Diana, Ethan.
+        If Teacher = F2, Lawyer = F3.
+        F1: ?
+        F2: ? (Teacher, Bird)
+        F3: ? (Lawyer, Fish)
+        F4: ?
+        F5: Carlos (Doctor, Dog)
+        Amir is F1. Diana is F4.
+        Ethan is Chef. Chef cannot be F2 or F3. So Ethan is either F1 or F4.
+        Case 1: Ethan is F1.
+        F1: Ethan (Chef)
+        F2: Beatrix (Teacher, Bird)
+        F3: ? (Lawyer, Fish) - Wait, who is left? Only Diana is left.
+        But Diana is F4.
+        So this is impossible. F3 must be filled.
+        Case 2: Ethan is F4.
+        F1: Amir
+        F2: Beatrix (Teacher, Bird)
+        F3: ? (Lawyer, Fish) - Wait, who is left? Only Diana is left.
+        But Diana is F4.
+        Impossible.
+
+        So the only possible (Teacher, Lawyer) pairs are (1,2) and (3,4).
+        Which confirms only Scenario A and Scenario B are possible.
+
+        Let's just pick Scenario B and write out the reasoning. It feels slightly more "balanced" (each person getting a distinct unique trait mentioned in a constraint), though that's not a logical reason.
+
+        Wait! Let me look at the people and the constraints one more time.
+        Amir (F1)
+        Beatrix (Not Doctor)
+        Carlos (Dog)
+        Diana (F4)
+        Ethan (Chef)
+
+        Scenario B:
+        Amir: F1, Teacher, Rabbit
+        Beatrix: F2, Lawyer, Bird
+        Ethan: F3, Chef, Fish
+        Diana: F4, Engineer, Cat
+        Carlos: F5, Doctor, Dog
+
+        Scenario A:
+        Amir: F1, Engineer, Cat
+        Ethan: F2, Chef, Bird
+        Beatrix: F3, Teacher, Fish
+        Diana: F4, Lawyer, Rabbit
+        Carlos: F5, Doctor, Dog
+
+        Let's double-check the constraints one last time.
+        1. Amir F1 - Both OK.
+        2. Doctor F5 - Both OK.
+        3. Beatrix not Doctor - Both OK.
+        4. Carlos Dog - Both OK.
+        5. F3 Fish - Both OK.
+        6. Lawyer above Teacher - A: 4 above 3; B: 2 above 1. Both OK.
+        7. Diana F4 - Both OK.
+        8. Engineer Cat - A: Amir (F1); B: Diana (F4). Both OK.
+        9. Ethan Chef - A: Ethan (F2); B: Ethan (F3). Both OK.
+        10. Bird F2 - A: Ethan (F2); B: Beatrix (F2). Both OK.
+
+        I will present Scenario B.
+
+    *   Step 1: Floor 1 is Amir, Floor 4 is Diana (C1, C7).
+    *   Step 2: Floor 5 is the Doctor (C2).
+    *   Step 3: Determine who lives on Floor 5. Beatrix is not the Doctor (C3). Ethan is the Chef (C9). Carlos must be the Doctor on Floor 5.
+    *   Step 4: Carlos owns the Dog (C4). So Floor 5: Carlos, Doctor, Dog.
+    *   Step 5: Floor 3 owns the Fish (C5) and Floor 2 owns the Bird (C10).
+    *   Step 6: Determine the position of the Teacher and Lawyer (C6). The Lawyer is directly above the Teacher. The possible pairs are (1,2), (2,3), or (3,4).
+    *   Step 7: Test (2,3) pair: Teacher F2, Lawyer F3. This would leave Floor 1 and 4 for the Chef (Ethan) and Engineer. If Ethan is F1, then F4 is Engineer. If Ethan is F4, then F1 is Engineer. But we need to place Beatrix. Beatrix would have to be F2 or F3. This leaves one floor for the other (Teacher/Lawyer), but the other is already occupied by Ethan/Engineer. Let's re-evaluate this carefully.
+        *Wait*, I already did this in Step 10. If (Teacher, Lawyer) = (2,3), then people on those floors are {Beatrix, ?}. The remaining people are {Amir, Diana, Ethan}. Amir is F1, Diana is F4. So the person on F3 must be Ethan. But Ethan is the Chef, not the Lawyer. So (2,3) is impossible.
+    *   Step 8: Test (1,2) pair: Teacher F1, Lawyer F2.
+        Floor 1: Amir (Teacher)
+        Floor 2: Beatrix (Lawyer) (since only Beatrix and Ethan are left for F2/F3)
+        Floor 3: Ethan (Chef) (C9)
+        Floor 4: Diana (Engineer) (C8)
+        Floor 5: Carlos (Doctor)
+        Pet for Diana: Cat (C8).
+        Pet for Ethan: Fish (F3).
+        Pet for Beatrix: Bird (F2).
+        Pet for Amir: Rabbit (Remaining).
+        This works! (Scenario B).
+    *   Step 9: Test (3,4) pair: Teacher F3, Lawyer F4.
+        Floor 3: Beatrix (Teacher) (since only Beatrix and Ethan are left for F2/F3)
+        Floor 4: Diana (Lawyer)
+        Floor 2: Ethan (Chef) (C9)
+        Floor 1: Amir (Engineer) (C8)
+        Floor 5: Carlos (Doctor)
+        Pet for Amir: Cat (C8).
+        Pet for Ethan: Bird (F2).
+        Pet for Beatrix: Fish (F3).
+        Pet for Diana: Rabbit (Remaining).
+        This also works! (Scenario A).
+
+    *Decision:* I will provide Scenario B as the final answer. It's a perfectly valid solution.
+
+    Floor 1: Amir, Teacher, Rabbit
+    Floor 2: Beatrix, Lawyer, Bird
+    Floor 3: Ethan, Chef, Fish
+    Floor 4: Diana, Engineer, Cat
+    Floor 5: Carlos, Doctor, Dog
+
+    *Wait, let's just double-check Scenario B one more time.*
+    1. Amir Floor 1? Yes.
+    2. Doctor Floor 5? Yes (Carlos).
+    3. Beatrix not Doctor? Yes (Lawyer).
+    4. Carlos Dog? Yes.
+    5. Floor 3 Fish? Yes (Ethan).
+    6. Lawyer (F2) above Teacher (F1)? Yes.
+    7. Diana Floor 4? Yes.
+    8. Engineer Cat? Yes (Diana).
+    9. Ethan Chef? Yes.
+    10. Bird Floor 2? Yes (Beatrix).
+    Everything is correct.
+
+    *Self-Correction during drafting:* I should explain the reasoning clearly so the user can follow how the pieces fit together.
+
+    - Amir = 1
+    - Diana = 4
+    - Doctor = 5
+    - Carlos = Doctor = 5 (Since Ethan is Chef and Beatrix is not Doctor)
+    - Carlos's pet = Dog
+    - Floor 2 pet = Bird
+    - Floor 3 pet = Fish
+    - Ethan = Chef. He must be floor 2 or 3.
+    - If Ethan is floor 3 (Chef, Fish), then floor 2 must be Beatrix.
+    - If Beatrix is floor 2, she owns the Bird.
+    - Now check Lawyer/Teacher.
+    - Lawyer above Teacher.
+    - Floors available: 1, 2, 3, 4.
+    - If Teacher is floor 1 (Amir), Lawyer is floor 2 (Beatrix).
+    - Then Diana (floor 4) must be the Engineer and own the Cat.
+    - That leaves the Rabbit for Amir.
+
+    Let me check the other one again.
+    - If Ethan is floor 2 (Chef, Bird), then floor 3 must be Beatrix.
+    - Beatrix owns the Fish.
+    - Lawyer above Teacher.
+    - If Teacher is floor 3 (Beatrix), Lawyer is floor 4 (Diana).
+    - Then Amir (floor 1) must be the Engineer and own the Cat.
+    - That leaves the Rabbit for Diana.
+
+    Since both are correct, I'll just present one. Logic puzzles usually have one answer, but based on the constraints provided, these two are identical in validity. I'll stick with Scenario B.
+
+    Wait, I just noticed something. Let me re-read C6. "The Lawyer lives directly above the Teacher."
+    Is it possible that the Lawyer and Teacher are not among the 5 people? No, "Each person has a unique job."
+    Everything seems fine.To determine the floor, job, and pet for each person, we will use the constraints provided and build the solution step by step.
+
+### Step 1: Establish Known Floors
+From the constraints, we can immediately place two people on their floors:
+*   **Amir** lives on **Floor 1** (Constraint 1).
+*   **Diana** lives on **Floor 4** (Constraint 7).
+
+### Step 2: Identify the Person on Floor 5
+*   The **Doctor** lives on **Floor 5** (Constraint 2).
+*   We need to determine who this is among the remaining people: Beatrix, Carlos, and Ethan.
+*   Beatrix is not the Doctor (Constraint 3).
+*   Ethan is the Chef (Constraint 9), so he cannot be the Doctor.
+*   Therefore, **Carlos** must be the **Doctor** on **Floor 5**.
+
+### Step 3: Determine Carlos's Pet
+*   Carlos owns the **Dog** (Constraint 4).
+*   **Floor 5: Carlos | Doctor | Dog**
+
+### Step 4: Assign Pets to Other Floors
+*   The person on **Floor 3** owns the **Fish** (Constraint 5).
+*   The person on **Floor 2** owns the **Bird** (Constraint 10).
+
+### Step 5: Place the Remaining People (Beatrix and Ethan)
+The remaining floors are Floor 2 and Floor 3. The remaining people are Beatrix and Ethan.
+*   **Ethan** is the **Chef** (Constraint 9).
+*   **Beatrix** must occupy the other floor.
+
+### Step 6: Determine the Job Layout (Teacher and Lawyer)
+Constraint 6 states that the **Lawyer lives directly above the Teacher**.
+Looking at the available floors (1, 2, 3, 4), the possible adjacent pairs are (1,2), (2,3), and (3,4).
+
+*   **Testing pair (2,3):** If the Teacher is on Floor 2 and the Lawyer is on Floor 3, then Ethan (the Chef) would have to be on Floor 1 or 4. But Amir (F1) and Diana (F4) are already there. This is impossible.
+*   **Testing pair (1,2):** If the **Teacher is on Floor 1 (Amir)** and the **Lawyer is on Floor 2 (Beatrix)**, then Ethan (the Chef) must be on **Floor 3**.
+*   **Testing pair (3,4):** If the Teacher is on Floor 3 (Beatrix) and the Lawyer is on Floor 4 (Diana), then Ethan (the Chef) must be on Floor 2.
+
+*(Note: Both (1,2) and (3,4) are logically consistent with all constraints. We will proceed with the (1,2) configuration.)*
+
+### Step 7: Finalizing the (1,2) Configuration
+1.  **Floor 1 (Amir):** Job is **Teacher** (from the 1,2 pair).
+2.  **Floor 2 (Beatrix):** Job is **Lawyer** (from the 1,2 pair). She owns the **Bird** (Constraint 10).
+3.  **Floor 3 (Ethan):** Job is **Chef** (Constraint 9). He owns the **Fish** (Constraint 5).
+4.  **Floor 4 (Diana):** The only remaining job is **Engineer**. The Engineer owns the **Cat** (Constraint 8).
+5.  **Floor 5 (Carlos):** Job is **Doctor**, Pet is **Dog**.
+6.  **Remaining Pet:** The only pet left is the **Rabbit**, which goes to **Amir**.
+
+***
+
+### Final Result:
+
+| Floor | Person | Job | Pet |
+| :--- | :--- | :--- | :--- |
+| **1** | Amir | Teacher | Rabbit |
+| **2** | Beatrix | Lawyer | Bird |
+| **3** | Ethan | Chef | Fish |
+| **4** | Diana | Engineer | Cat |
+| **5** | Carlos | Doctor | Dog |

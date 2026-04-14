@@ -1,0 +1,92 @@
+To determine the floor, job, and pet for each person, we can use a step-by-step logical deduction. We will build a grid to keep track of the floors (1 through 5).
+
+**Step 1: Fill in the direct clues**
+* Constraint 1: Amir is on Floor 1.
+* Constraint 2: The Doctor is on Floor 5.
+* Constraint 5: Floor 3 owns the Fish.
+* Constraint 7: Diana is on Floor 4.
+* Constraint 10: Floor 2 owns the Bird.
+
+*Current Grid:*
+| Floor | Person | Job | Pet |
+| :---: | :---: | :---: | :---: |
+| 5 | | Doctor| |
+| 4 | Diana | | |
+| 3 | | | Fish |
+| 2 | | | Bird |
+| 1 | Amir | | |
+
+**Step 2: Find Carlos and his Pet**
+* We need to place Carlos, who owns the Dog (Constraint 4).
+* Carlos cannot be on Floor 1 (Amir) or Floor 4 (Diana). 
+* Carlos cannot be on Floor 2 or Floor 3, because those floors already have a Bird and a Fish. 
+* Therefore, **Carlos must live on Floor 5**. 
+* This means Carlos is the Doctor and he owns the Dog. *(Note: Constraint 3 states "Beatrix is not the Doctor," which perfectly aligns with this deduction).*
+
+*Current Grid:*
+| Floor | Person | Job | Pet |
+| :---: | :---: | :---: | :---: |
+| 5 | Carlos | Doctor| Dog |
+| 4 | Diana | | |
+| 3 | | | Fish |
+| 2 | | | Bird |
+| 1 | Amir | | |
+
+**Step 3: Analyze the Remaining People and the Engineer**
+* The remaining people for Floors 2 and 3 are **Beatrix** and **Ethan**.
+* Constraint 9 tells us Ethan is the Chef.
+* Constraint 8 tells us the Engineer owns the Cat. Because Floors 2, 3, and 5 already have pets (Bird, Fish, Dog), the Engineer and their Cat must be placed on either Floor 1 or Floor 4.
+
+**Step 4: Placing the Lawyer and Teacher (Two Possible Solutions)**
+Constraint 6 states that the **Lawyer lives directly above the Teacher**. Let's look at the remaining adjacent floors and test where Ethan (the Chef) can go.
+
+* **Scenario 1: What if Ethan is on Floor 3?**
+  * Floor 3 is Ethan (Chef).
+  * Floor 2 must be Beatrix.
+  * We need the Lawyer to be directly above the Teacher. Since Floor 5 is the Doctor and Floor 3 is the Chef, the only adjacent floors left for the Lawyer/Teacher combo are **Floor 2 and Floor 1**. 
+  * So, Beatrix (Floor 2) is the Lawyer, and Amir (Floor 1) is the Teacher.
+  * This leaves Floor 4 for the Engineer (Diana), who owns the Cat.
+  * The last remaining pet (Rabbit) goes to Amir on Floor 1.
+  
+  *Checking Scenario 1 against all constraints proves it is 100% valid:*
+  * **Floor 5:** Carlos, Doctor, Dog
+  * **Floor 4:** Diana, Engineer, Cat
+  * **Floor 3:** Ethan, Chef, Fish
+  * **Floor 2:** Beatrix, Lawyer, Bird
+  * **Floor 1:** Amir, Teacher, Rabbit
+
+* **Scenario 2: What if Ethan is on Floor 2?**
+  * Floor 2 is Ethan (Chef).
+  * Floor 3 must be Beatrix.
+  * We need the Lawyer to be directly above the Teacher. Since Floor 5 is the Doctor and Floor 2 is the Chef, the only adjacent floors left for the Lawyer/Teacher combo are **Floor 4 and Floor 3**.
+  * So, Diana (Floor 4) is the Lawyer, and Beatrix (Floor 3) is the Teacher.
+  * This leaves Floor 1 for the Engineer (Amir), who owns the Cat.
+  * The last remaining pet (Rabbit) goes to Diana on Floor 4.
+
+  *Checking Scenario 2 against all constraints proves it is ALSO 100% valid:*
+  * **Floor 5:** Carlos, Doctor, Dog
+  * **Floor 4:** Diana, Lawyer, Rabbit
+  * **Floor 3:** Beatrix, Teacher, Fish
+  * **Floor 2:** Ethan, Chef, Bird
+  * **Floor 1:** Amir, Engineer, Cat
+
+***
+
+### Conclusion
+Based on the provided constraints, there is a slight ambiguity that leaves us with **two perfectly valid scenarios** depending on whether Ethan lives on the 2nd or 3rd floor. 
+
+Here are both correct configurations:
+
+**Valid Configuration A:**
+* **Floor 5:** Carlos | Doctor | Dog
+* **Floor 4:** Diana | Engineer | Cat
+* **Floor 3:** Ethan | Chef | Fish
+* **Floor 2:** Beatrix | Lawyer | Bird
+* **Floor 1:** Amir | Teacher | Rabbit
+
+**Valid Configuration B:**
+* **Floor 5:** Carlos | Doctor | Dog
+* **Floor 4:** Diana | Lawyer | Rabbit
+* **Floor 3:** Beatrix | Teacher | Fish
+* **Floor 2:** Ethan | Chef | Bird
+* **Floor 1:** Amir | Engineer | Cat
