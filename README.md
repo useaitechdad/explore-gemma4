@@ -1,5 +1,7 @@
 # Gemma 4 Demo App — Test Artefacts
 
+**Video walkthrough:** https://youtu.be/WcdFG1Onj5U
+
 Source code, prompts, and outputs from the YouTube video **"Gemma 4: 8 Real-World Tests"**.
 
 ---
