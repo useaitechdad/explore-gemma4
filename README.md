@@ -1,8 +1,15 @@
 # Gemma 4 Demo App — Test Artefacts
 
-**Video walkthrough:** https://youtu.be/WcdFG1Onj5U
+Source code, prompts, and outputs accompanying two YouTube videos.
 
-Source code, prompts, and outputs from the YouTube video **"Gemma 4: 8 Real-World Tests"**.
+## Videos
+
+| Video | Link |
+|-------|------|
+| **Gemma 4: 8 Real-World Tests** — the demo app, prompts, and model outputs | https://youtu.be/WcdFG1Onj5U |
+| **LLM Wiki** — a living, agent-maintained wiki for any codebase (uses this repo as the demo) | https://youtu.be/J3szwLZ6YfI |
+
+The `.agents/` directory contains the portable **LLM Wiki** package (skills, workflows, rules) that any Antigravity user can drop into their own repo. The `wiki/` directory is the generated output. See [`.agents/README.md`](.agents/README.md) for details.
 
 ---
 
