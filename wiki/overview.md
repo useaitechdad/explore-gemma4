@@ -16,6 +16,8 @@ The codebase is a flat project with no build steps:
 - `index.html`: The core application containing UI layout, styling, and JavaScript logic for the REST API client.
 - `README.md`: Setup instructions and a summary of test results.
 - `PROMPTS.md`: The copy-pasteable test prompts used in the video demonstration.
+- `.agents/`: Portable LLM Wiki package for automated documentation.
+- `wiki/`: Generated LLM-maintained living documentation.
 - `env.txt.example`: Example for providing the Google AI Studio API key.
 - `outputs/`: Pre-captured model test responses used in the demonstrations.
 

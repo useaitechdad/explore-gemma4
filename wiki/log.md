@@ -38,4 +38,10 @@ confidence: high
 - Stale: 0, Drift: 0, Orphans: 0, Gaps: 1, Contradictions: 0, Legacy: 0, Frontmatter: 7
 - Report: see chat
 
+## [2026-04-15] sync | structure update
+- Changed files: README.md
+- Pages updated: overview.md
+- Follow-ups: none
+
+
 

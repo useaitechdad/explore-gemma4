@@ -17,6 +17,8 @@ The `.agents/` directory contains the portable **LLM Wiki** package (skills, wor
 
 ```
 demo-app/
+├── .agents/            # Portable LLM Wiki package (skills, workflows, rules)
+├── wiki/               # Generated LLM-maintained living documentation
 ├── index.html          # The demo app (single HTML file, no build step)
 ├── start.command       # macOS double-click launcher
 ├── README.md           # This file
