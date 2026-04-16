@@ -1,4 +1,4 @@
-# Gemma 4 Demo App — Test Artefacts
+# LLM Wiki Package for Antigravity (featuring Gemma 4 Demo)
 
 Source code, prompts, and outputs accompanying two YouTube videos.
 
